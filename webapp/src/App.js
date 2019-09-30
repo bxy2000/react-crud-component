@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
-import {ConfigProvider, Row, Col, Table, Form, Divider, Button, Input, PageHeader} from 'antd';
-
+import {ConfigProvider, Row, Col, PageHeader} from 'antd';
+import UserList from "./UserList";
+import UserForm from './UserForm';
 import axios from 'axios';
 
 import zhCN from 'antd/es/locale/zh_CN';
@@ -30,7 +31,8 @@ class App extends Component {
         this.query();
     };
 
-    handleSubmit = e => {
+    handleSubmit = (e) => {
+        console.log(e);
         e.preventDefault();
         if (this.state.name !== '') {
             axios.post('/user', {
@@ -46,6 +48,19 @@ class App extends Component {
         }
     };
 
+    handleChange = (name) => {
+        this.setState({
+            name
+        })
+    }
+
+    edit = (item) => {
+        this.setState({
+            id: item.id,
+            name: item.name
+        })
+    }
+
     deleteItem = (item) => {
         axios.delete(`/user/${item.id}`).then(() => {
             this.query();
@@ -53,31 +68,6 @@ class App extends Component {
     };
 
     render() {
-        const columns = [{
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id'
-        }, {
-            title: '姓名',
-            dataIndex: 'name',
-            key: 'name'
-        }, {
-            title: '操作',
-            key: 'action',
-            width: '180px',
-            render: (text, item) => (
-                <span>
-                    <Button type="default" onClick={() => {
-                        this.setState({id: item.id, name: item.name})
-                    }}>编辑</Button>
-                    <Divider type="vertical"/>
-                    <Button type="danger" onClick={() => {
-                        this.deleteItem(item)
-                    }}>删除</Button>
-                </span>
-            )
-        }];
-
         return (
             <ConfigProvider locale={zhCN}>
                 <Row>
@@ -85,23 +75,10 @@ class App extends Component {
                 </Row>
                 <Row>
                     <Col span={12}>
-                        <Table rowKey={record => record.id} dataSource={this.state.list} columns={columns}/>
+                        <UserList list={this.state.list} edit={this.edit} deleteItem={this.deleteItem} />
                     </Col>
                     <Col span={12}>
-                        <Form labelCol={{span: 5}} wrapperCol={{span: 12}} onSubmit={this.handleSubmit}>
-                            <Form.Item label="姓名">
-                                <Input value={this.state.name} onChange={
-                                    (e) => {
-                                        this.setState({
-                                            name: e.target.value
-                                        })
-                                    }
-                                }/>
-                            </Form.Item>
-                            <Form.Item wrapperCol={{span: 12, offset: 5}}>
-                                <Button type="primary" htmlType="submit">提交</Button>
-                            </Form.Item>
-                        </Form>
+                        <UserForm name={this.state.name} handleChange={this.handleChange} handleSubmit={this.handleSubmit} />
                     </Col>
                 </Row>
             </ConfigProvider>
