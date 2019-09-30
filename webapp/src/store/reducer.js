@@ -1,3 +1,5 @@
+import {CHANGE_USER_NAME, INIT_USER_LIST, EDIT_USER_NAME, SET_USER_EMPTY} from "./actionType";
+
 const defaultState = {
     id: '',
     name: '',
@@ -7,14 +9,14 @@ const defaultState = {
 export default (state = defaultState, action) => {
     const newState = Object.create(state);
     switch(action.type){
-        case 'change_user_name':
+        case CHANGE_USER_NAME:
             newState.name = action.name;
             break;
-        case 'init_user_list':
+        case INIT_USER_LIST:
             newState.list = action.list;
             break;
-        case 'edit_user_name':
-        case 'set_user_empty':
+        case EDIT_USER_NAME:
+        case SET_USER_EMPTY:
             newState.id = action.user.id;
             newState.name = action.user.name;
             break;
