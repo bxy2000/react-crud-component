@@ -3,7 +3,14 @@ import {ConfigProvider, Row, Col, PageHeader} from 'antd';
 import axios from 'axios';
 import UserList from "./UserList";
 import UserForm from './UserForm';
+
 import store from "./store";
+import {
+    editUserAction,
+    findUsers,
+    saveUser,
+    deleteUser, changeUsernameAction
+} from "./store/actionCreator";
 
 import zhCN from 'antd/es/locale/zh_CN';
 import moment from 'moment';
@@ -21,57 +28,34 @@ class App extends Component {
         })
     }
 
-    query = () => {
-        axios.get('/user').then(({data}) => {
-            const action = {
-                type: 'init_user_list',
-                list: data
-            }
-            store.dispatch(action);
-        });
-    };
-
     componentDidMount() {
         this.query();
-    };
+    }
+
+    edit = (item) => {
+        store.dispatch(editUserAction(item));
+    }
+
+    query = () => {
+        store.dispatch(findUsers());
+    }
+
+    deleteItem = (item) => {
+        store.dispatch(deleteUser(item.id));
+    }
+
+    handleChange = (name) => {
+        store.dispatch(changeUsernameAction(name));
+    }
 
     handleSubmit = (e) => {
         e.preventDefault();
         if (this.state.name !== '') {
-            axios.post('/user', {
+            store.dispatch(saveUser({
                 id: !this.state.id ? '' : this.state.id,
                 name: this.state.name
-            }).then(() => {
-                const action = {
-                    type: 'set_user_empty',
-                    user: {id: '', name: ''}
-                }
-                store.dispatch(action);
-                this.query();
-            })
+            }));
         }
-    };
-
-    handleChange = (name) => {
-        const action = {
-            type: 'change_user_name',
-            name
-        }
-        store.dispatch(action);
-    }
-
-    edit = (item) => {
-        const action = {
-            type: 'edit_user_name',
-            user: item
-        }
-        store.dispatch(action)
-    }
-
-    deleteItem = (item) => {
-        axios.delete(`/user/${item.id}`).then(() => {
-            this.query();
-        })
     };
 
     render() {
